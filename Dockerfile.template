@@ -1,4 +1,3 @@
-USER 1000
 FROM quay.io/domino/python-slim:3.9.16-slim-bullseye-356299
 ENV PATH=$$PATH:/home/app/.local/bin:/home/app/bin
 ENV PYTHONUNBUFFERED=true
@@ -8,7 +7,7 @@ ENV MODEL_NAME=${model_name}
 ENV MODEL_VERSION=v${model_version}
 ENV MODEL_PATH=/app
 RUN groupadd --gid 1000 domino && \
-    useradd --uid 1000 --gid 1000 vi Ddomino -m -d /app
+    useradd --uid 1000 --gid 1000 domino -m -d /app
 
 RUN apt-get update \
     && apt-get upgrade --yes \
@@ -23,7 +22,6 @@ ADD  ${model_client_folder} client
 RUN pip install --upgrade pip
 RUN chmod -R 755 /app/model
 RUN pip install -r  /app/model/requirements.txt
-
 
 USER 1000
 ENTRYPOINT ["${entry_point}"]

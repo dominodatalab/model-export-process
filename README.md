@@ -84,3 +84,4 @@ If the cadence is 15 mins, the image will be available in 15 mins after the Domi
 
 The steps 2,3,4 are fairly lightweight allowing us to have a more frequent executions
 
+

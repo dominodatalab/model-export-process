@@ -83,3 +83,4 @@ The end result is depending on the cadence (2,3,4) runs, the model images will b
 If the cadence is 15 mins, the image will be available in 15 mins after the Domino user publishes the model.
 
 The steps 2,3,4 are fairly lightweight allowing us to have a more frequent executions
+

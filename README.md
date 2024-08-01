@@ -40,30 +40,30 @@ ls /tmp/foundry_models/
 #You will see a folder for all registered models. I see only one because I have only one
 /tmp/foundry_models/
 - foundry_model
+- pltr_foundry_model
 
-cd /tmp/foundry_models/foundry_model
+cd /tmp/foundry_models/pltr_foundry_model
 
 ```
 Now you will see a folder structure for all versions for which the tag `TARGET_PLTR_FOUNDRY` was added to the 
 model version
 ```shell
-/tmp/foundry_models/foundry_model
-- v27     
-- v29     
-- v31    
-- v32    
-- v33    
-- v34
+/tmp/foundry_models/pltr_foundry_model
+- v1
+- v2     
+- v3
+- v4
+- v5      
 ```
 
 
 Go the most recent one
 
 ```shell
-cd /tmp/foundry_models/foundry_model/v34
+cd /tmp/foundry_models/pltr_foundry_model/v5
 
 chmod 755 create_docker_image.sh
 ./create_docker_image.sh
 ```
 
-This will publish the model to  `quay.io/domino` (Or your registry) and also run it locally for you
+This will publish the model to  `quay.io/domino/pltr_foundry_model:v5` (Or your registry) and also run it locally for you

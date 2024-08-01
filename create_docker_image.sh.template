@@ -1,4 +1,4 @@
-docker build --platform=linux/amd64 -f ./Dockerfile -t ${FOUNDRY_URL}/${model_name}:${model_version} .
+docker build --platform=linux/amd64 -f ./Dockerfile -t ${FOUNDRY_URL}/${model_name}:v${model_version} .
 docker push ${FOUNDRY_URL}/${model_name}:${model_version} 
-docker run ${FOUNDRY_URL}/${model_name}:${model_version}
+docker run ${FOUNDRY_URL}/${model_name}:v${model_version}
 

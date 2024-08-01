@@ -67,3 +67,19 @@ chmod 755 create_docker_image.sh
 ```
 
 This will publish the model to  `quay.io/domino/pltr_foundry_model:v5` (Or your registry) and also run it locally for you
+
+## Key Takeaways
+
+The process is fully automated as follows-
+
+1. The Domino user will register models using specific protocols (Tags and Artifact locations). We can wrap this in a 
+utility libraries
+2. The `download_models.py` will run on schedule and download the models matching the appropriate tags
+3. Each downloaded model will have a `create_model_image.sh` and `Dockerfile` along with other artifacts
+4. The process to run these for non-published models will also be run on schedule
+
+The end result is depending on the cadence (2,3,4) runs, the model images will be available in foundry.
+
+If the cadence is 15 mins, the image will be available in 15 mins after the Domino user publishes the model.
+
+The steps 2,3,4 are fairly lightweight allowing us to have a more frequent executions

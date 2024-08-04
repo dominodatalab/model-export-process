@@ -45,15 +45,11 @@ ls /tmp/foundry_models/
 cd /tmp/foundry_models/pltr_foundry_model
 
 ```
-Now you will see a folder structure for all versions for which the tag `TARGET_PLTR_FOUNDRY` was added to the 
+Now you will see a folder structure for all versions for which the tag `EXTERNAL_TARGET_PLTR_FOUNDRY` was added to the 
 model version
 ```shell
 /tmp/foundry_models/pltr_foundry_model
-- v1
-- v2     
-- v3
-- v4
-- v5      
+- v7
 ```
 
 
@@ -82,6 +78,19 @@ The end result is depending on the cadence (2,3,4) runs, the model images will b
 
 If the cadence is 15 mins, the image will be available in 15 mins after the Domino user publishes the model.
 
-The steps 2,3,4 are fairly lightweight allowing us to have a more frequent executions
+The steps 2,3,4 are lightweight allowing us to have a more frequent executions
 
+## Benefits of this approach
 
+Domino introduced the Model Registry along with its new Experiment Manager. The purpose of the model 
+registry to encourage users to publish models which can be **run anywhere**. 
+
+Anywhere includes any execution architecture, `linux/amd64`, `linux/arm64`, `linux/arm/v7` or any new
+one that emerges in the future. 
+
+The other benefit if this approach is, it allows you to create  docker image of minimum size possible
+to run on the target platform. This reduces startup times as well as makes the model execution
+process as cost efficient as possible. If you want to bundle the Domino models from Domino Model
+Registry into an existing image, you are free to do so by using it as the base image. The Model
+Registry only contains the model artifacts and the metadata about the execution environment such as
+- `conda.yaml`, `python_env.yaml` and `requirements.txt`

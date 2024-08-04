@@ -80,11 +80,16 @@ def download_and_test(model_versions_to_build, base_path='/tmp/local_models'):
                 'command_line': mv.tags['MODEL_EXECUTE_PATH']
         }
 
-        with open(f"{model_download_path}/templates/Dockerfile.template", 'r') as file:
+
+
+        templates_folder = 'templates'
+        if 'MODEL_TEMPLATES_FOLDER' in context:
+            templates_folder = context['MODEL_TEMPLATES_FOLDER']
+        with open(f"{model_download_path}/{templates_folder}/Dockerfile.template", 'r') as file:
             content = file.read()
             output_file = f"{model_download_path}/Dockerfile"
             create_file_from_template(content, context, output_file)
-        with open(f"{model_download_path}/templates/create_docker_image.sh.template", 'r') as file:
+        with open(f"{model_download_path}/{templates_folder}/create_docker_image.sh.template", 'r') as file:
             content = file.read()
             output_file = f"{model_download_path}/create_docker_image.sh"
             create_file_from_template(content, context, output_file)
@@ -112,7 +117,7 @@ if __name__ == "__main__":
             total_versions = latest_version.version
             for i in range(1, int(total_versions) + 1):
                 v = client.get_model_version(name, i)
-                tag_for_publish_to_foundry = 'TARGET_PLTR_FOUNDRY'
+                tag_for_publish_to_foundry = 'EXTERNAL_TARGET_PLTR_FOUNDRY'
                 if tag_for_publish_to_foundry in v.tags and v.tags[tag_for_publish_to_foundry]:
                     model_versions_to_build.append(v)
                 # This if of type ModelVersion - See MLFLOW API

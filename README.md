@@ -95,3 +95,85 @@ process as cost efficient as possible. If you want to bundle the Domino models f
 Registry into an existing image, you are free to do so by using it as the base image. The Model
 Registry only contains the model artifacts and the metadata about the execution environment such as
 - `conda.yaml`, `python_env.yaml` and `requirements.txt`
+
+
+## Alternative approach using Kaniko in the K8s cluster
+
+
+We could run the build using Kaniko. First create the image which downloads the models from Model Registry
+and builds them in Kaniko and pubishes them back to `quay.io/domino` . You can adapt this code to publish to any
+registry.
+
+```shell
+docker build --platform=linux/amd64  -f ./Dockerfile -t  quay.io/domino/kaniko-based-modelregistry-push:v3 .
+docker push quay.io/domino/kaniko-based-modelregistry-push:v3    
+```
+
+This builds the image based on the `Dockerfile` in the root folder. The full Dockerfile is below:
+
+```shell
+FROM gcr.io/kaniko-project/executor:v1.23.2 as kaniko
+FROM python:3.9-slim
+
+# Copy Kaniko executor from the previous stage
+COPY --from=kaniko /kaniko /kaniko
+# Ensure Kaniko executor is executable
+RUN chmod +x /kaniko/executor
+RUN chmod 777 /kaniko/
+ENV PATH=$PATH:/home/app/.local/bin:/home/app/bin
+ENV PYTHONUNBUFFERED=true
+ENV PYTHONUSERBASE=/home/app
+
+#RUN groupadd --gid 1000 domino && \
+#    useradd --uid 1000 --gid 1000 domino -m -d /app
+#RUN apt-get update \
+#    && apt-get upgrade --yes \
+#    && apt-get install -y --no-install-suggests --no-install-recommends \
+#    curl \
+#    && apt-get clean \
+#    && rm -rf /var/lib/apt/lists/*
+RUN pip install mlflow pyjwt
+WORKDIR /app
+COPY  *.py  .
+#USER 1000
+ENTRYPOINT ["python","/app/publish_models.py"]
+```
+
+This has to run as root. If I run it as another user `kaniko` builds throw and error which looks like this
+```shell
+INFO[0001] Building stage 'quay.io/domino/python-slim:3.9.16-slim-bullseye-356299' [idx: '0', base-idx: '-1']
+INFO[0001] Unpacking rootfs as cmd RUN groupadd --gid 1000 domino &&     useradd --uid 1000 --gid 1000 domino -m -d /app requires it.
+error building image: error building stage: failed to get filesystem from image: chown /bin: operation not permitted
+```
+
+Next run the example kaniko pod in the path `./k8s/kaniko-pod.yaml`. You will find two environment varialbes in the yaml
+- `MODEL_NAME` - This is the name of the model registered to the Domino Model Registry
+- `MODEL_VERSION` - This is the version of the model registered to the Domino Model Registry
+
+Note that if your `Dockerfile` based on the `./template/Dockerfile.template` uncomment this section the kanio build will fails
+```shell
+#RUN apt-get update \
+#    && apt-get upgrade --yes \
+#    && apt-get install -y --no-install-suggests --no-install-recommends \
+#    curl \
+#    && apt-get clean \
+#    && rm -rf /var/lib/apt/lists/*
+```
+
+In my example I used
+
+```shell
+MODEL_NAME=pltr_foundry_model
+MODEL_VERSION=8
+```
+
+Now create the pod
+
+```shell
+kubectl -n domino-compute delete pod kaniko-domino-model-registry
+kubectl -n domino-compute apply -f kaniko-domino-model-registry
+kubectl -n domino-compute logs -f kaniko-domino-model-registry
+```
+
+The logs will show you that the build and push takes approximately 55 seconds. Compared to around 40 seconds from
+the laptop

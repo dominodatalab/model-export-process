@@ -95,11 +95,7 @@ def download_and_test(model_versions_to_build, base_path='/tmp/local_models'):
             create_file_from_template(content, context, output_file)
 
 
-
-
-if __name__ == "__main__":
-    print(sys.argv[1])
-    base_path = sys.argv[1]
+def main(base_path):
     set_mlflow_tracking_uri()
     register_domino_api_key_request_header_provider()
     register_domino_execution_request_header_provider()
@@ -125,5 +121,10 @@ if __name__ == "__main__":
                 # This if of type ModelVersion - See MLFLOW API
     os.makedirs(base_path, exist_ok=True)
     download_and_test(model_versions_to_build, base_path)
+
+if __name__ == "__main__":
+    print(sys.argv[1])
+    base_path = sys.argv[1]
+    main(base_path)
 
 

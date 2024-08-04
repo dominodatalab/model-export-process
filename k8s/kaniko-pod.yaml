@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-domino-model-registry
+  namespace: domino-compute
+spec:
+  containers:
+  - name: kaniko-domino-model-registry
+    image: quay.io/domino/kaniko-based-modelregistry-push:v3
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: kaniko-secret
+      mountPath: /kaniko/.docker/config.json
+      subPath: .dockerconfigjson
+    env:
+    - name: MODEL_NAME
+      value: pltr_foundry_model
+    - name: MODEL_VERSION
+      value: "8"
+    - name: DOCKER_CONFIG
+      value: /kaniko/.docker
+    - name: DOMINO_RUN_ID
+      valueFrom:
+        secretKeyRef:
+          name: domino-kaniko-svc-account
+          key: DOMINO_RUN_ID
+    - name: DOMINO_USER_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: domino-kaniko-svc-account
+          key: DOMINO_USER_API_KEY
+    - name: MLFLOW_TRACKING_URI
+      value: https://secureds53799.cs.domino.tech/
+  restartPolicy: Never
+  volumes:
+  - name: kaniko-secret
+    secret:
+      secretName: domino-quay-repos
+  imagePullSecrets:
+  - name: domino-quay-repos
+

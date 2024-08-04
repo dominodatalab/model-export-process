@@ -47,7 +47,6 @@ def predict(model_uri, features):
     return loaded_model.predict(features)
 
 
-
 def create_file_from_template(template_string, context, output_file_path):
     template = string.Template(template_string)
     content = template.substitute(context)

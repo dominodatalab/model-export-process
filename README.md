@@ -1,5 +1,6 @@
 ## Publish a Domino Model to an External Model Registry
 
+The design for this workload is outlined in this ![Architecture Overview](assets/publish-to-external-model-regisry.png).
 ## First Create and Register a model
 
 For this we have provided a [notebook](./register_models.ipynb). 

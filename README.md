@@ -12,7 +12,7 @@ When you register the models go the "Experiments" page in Domino and view the ar
 The folder structure is crucial.
 - `mymodel` (All the model definitions and model binaries are stored here. The model is loaded from this folder)
 - `client` (The client programs, for example, those going to the ENTRYPOINT in the Dockerfile endup here)
-- The root folder contains the `Dockerfile.template` and `create_docker_image.sh.template`
+- `templates` (Contains `Dockerfile.template` and `create_docker_image.sh.template`)
 
 The reason we have templates for the Dockerfile is because we cannot yet resolve them.
 The resolution to `Dockerfile` and `create_docker_image.sh` needs the `model_version` that is assigned
@@ -73,7 +73,7 @@ This will publish the model to  `quay.io/domino/pltr_foundry_model:v5` (Or your 
 The process is fully automated as follows-
 
 1. The Domino user will register models using specific protocols (Tags and Artifact locations). We can wrap this in a 
-utility libraries
+utility libraries. This process is outlined in the [notebook](./register_models.ipynb)
 2. The `download_models.py` will run on schedule and download the models matching the appropriate tags
 3. Each downloaded model will have a `create_model_image.sh` and `Dockerfile` along with other artifacts
 4. The process to run these for non-published models will also be run on schedule

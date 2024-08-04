@@ -111,6 +111,7 @@ if __name__ == "__main__":
     for m in lst:
         name = m.name
         versions = m.latest_versions
+
         total_versions = 0
         if versions and len(versions) > 0:
             latest_version = m.latest_versions[0]
@@ -119,9 +120,9 @@ if __name__ == "__main__":
                 v = client.get_model_version(name, i)
                 tag_for_publish_to_foundry = 'EXTERNAL_TARGET_PLTR_FOUNDRY'
                 if tag_for_publish_to_foundry in v.tags and v.tags[tag_for_publish_to_foundry]:
+                    print(f'Relevant Model For Publishing: {name}:{i}')
                     model_versions_to_build.append(v)
                 # This if of type ModelVersion - See MLFLOW API
-
     os.makedirs(base_path, exist_ok=True)
     download_and_test(model_versions_to_build, base_path)
 

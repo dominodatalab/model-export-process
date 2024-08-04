@@ -81,11 +81,11 @@ def download_and_test(model_versions_to_build, base_path='/tmp/local_models'):
                 'command_line': mv.tags['MODEL_EXECUTE_PATH']
         }
 
-        with open(f"{model_download_path}/Dockerfile.template", 'r') as file:
+        with open(f"{model_download_path}/templates/Dockerfile.template", 'r') as file:
             content = file.read()
             output_file = f"{model_download_path}/Dockerfile"
             create_file_from_template(content, context, output_file)
-        with open(f"{model_download_path}/create_docker_image.sh.template", 'r') as file:
+        with open(f"{model_download_path}/templates/create_docker_image.sh.template", 'r') as file:
             content = file.read()
             output_file = f"{model_download_path}/create_docker_image.sh"
             create_file_from_template(content, context, output_file)

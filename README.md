@@ -20,7 +20,7 @@ The resolution to `Dockerfile` and `create_docker_image.sh` needs the `model_ver
 after the artifacts are registered. Note that we do not need these files at all. The downstream client
 program can use their own if they know the folder structure for the artifacts
 
-## Build, Publish and Run Image to an external registry
+## Build, Publish and Run Image to an external registry 
 
 ```
 export DOMINO_USER_API_KEY=<DOMINO_USER_API_KEY>

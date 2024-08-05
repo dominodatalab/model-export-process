@@ -21,7 +21,7 @@ after the artifacts are registered. Note that we do not need these files at all.
 program can use their own if they know the folder structure for the artifacts
 
 ## Build, Publish and Run Image to an external registry 
-
+ 
 ```
 export DOMINO_USER_API_KEY=<DOMINO_USER_API_KEY>
 export DOMINO_RUN_ID=<DOMINO_RUN_ID>

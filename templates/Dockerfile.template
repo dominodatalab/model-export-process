@@ -1,4 +1,5 @@
-FROM quay.io/domino/python-slim:3.9.16-slim-bullseye-356299
+FROM python:3.9.19-slim-bullseye
+
 ENV PATH=$$PATH:/home/app/.local/bin:/home/app/bin
 ENV PYTHONUNBUFFERED=true
 ENV PYTHONUSERBASE=/home/app

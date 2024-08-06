@@ -37,3 +37,4 @@ print(f'Total time for build and push {total_time} seconds' )
 # Print the output
 print(result.stdout)
 print(result.stderr)
+

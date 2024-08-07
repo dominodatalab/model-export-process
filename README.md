@@ -3,7 +3,7 @@
 The design for this workload is outlined in this ![Architecture Overview](assets/publish-to-external-model-regisry.png).
 ## First Create and Register a model
 
-For this we have provided a [notebook](./register_models.ipynb). 
+For this we have provided a [notebook](./create_models.ipynb). 
 
 The first section shows you how to create a model and register it. This is a scikit learn model
 but any model can be registered using MLflow API supported by Domino
@@ -22,9 +22,68 @@ program can use their own if they know the folder structure for the artifacts
 
 ## Build, Publish and Run Image to an external registry 
  
+Run the notebook publish_models.ipynb [notebook](./publish_models.ipynb)
+
+In the first cell update the appropriate values to your values
+```python
+import os
+#Ideally put these in your Domino User Environment Variables. Try not to hard code them
+os.environ['REGISTRY_URL']='xxx-xx-registry.palantirfoundry.com'
+os.environ['REGISTRY_USER']='<REGISTRY_USER>'
+os.environ['REGISTRY_TOKEN']='REGISTRY_TOKEN'
+
+
+#This comes from the previous notebook where the model was published to Experiment Manager
+model_name="pltr_foundry_model"
+model_version="19"
+```
+And then run the next cell
+```python
+import requests
+import json
+import os
+import mlflow
+from mlflow.client import MlflowClient
+
+#From previous cell
+model_name="pltr_foundry_model"
+model_version="19"
+
+
+client = MlflowClient()
+mv = client.get_model_version(model_name, model_version)
+print(mv)
+#Update these to your Domino URL and get this IP from your Domino Representative
+MLFLOW_TRACKING_URI='https://secureds53799.cs.domino.tech/'
+BUILD_URL = "https://34.218.240.146:8443/build"
+
+payload = json.dumps({
+  "model_name": model_name,
+  "model_version": model_version
+})
+headers = {
+  'MLFLOW_TRACKING_URI': MLFLOW_TRACKING_URI,
+  'DOMINO_USER_API_KEY': os.environ['DOMINO_USER_API_KEY'],
+  'DOMINO_RUN_ID': os.environ['DOMINO_RUN_ID'],
+  'REGISTRY_URL': os.environ['REGISTRY_URL'],
+  'REGISTRY_USER': os.environ['REGISTRY_USER'],
+  'REGISTRY_TOKEN': os.environ['REGISTRY_TOKEN'],
+  'Content-Type': 'application/json'
+}
+
+response = requests.request("POST", BUILD_URL, headers=headers, data=payload,verify=False)
+
+print(response.text)
+
+```
+
 ```
 export DOMINO_USER_API_KEY=<DOMINO_USER_API_KEY>
 export DOMINO_RUN_ID=<DOMINO_RUN_ID>
+export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
+
+export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
+export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
 export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
 
 ./download_models.py "/tmp/foundry_models"

@@ -174,7 +174,11 @@ async def build():
 
     return jsonify(model_name=model_name, model_version=model_version,stdout=output, stderror = error)
 
+@app.route('/healthz')
+def healthz():
+   return "healthy"
+
 if __name__ == '__main__':
     home = os.environ['HOME']
-
-    app.run(host='0.0.0.0', port=8443, certfile=f"{home}/app/cert.pem", keyfile=f"{home}/app/key.pem")
+    port = os.getenv("SSL_PORT",8443)
+    app.run(host='0.0.0.0', port=int(port), certfile=f"{home}/app/cert.pem", keyfile=f"{home}/app/key.pem")

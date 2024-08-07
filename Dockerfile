@@ -18,9 +18,9 @@ ENV PYTHONUSERBASE=/home/app
 #    curl \
 #    && apt-get clean \
 #    && rm -rf /var/lib/apt/lists/*
-RUN pip install mlflow pyjwt
+RUN pip install mlflow pyjwt setuptools scikit-learn
 WORKDIR /app
 COPY  *.py  .
 #USER 1000
-ENTRYPOINT ["python","/app/publish_models.py"]
+ENTRYPOINT ["python","/app/download_models_and_publish.py"]
 

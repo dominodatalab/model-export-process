@@ -22,13 +22,28 @@ spec:
     - name: DOMINO_RUN_ID
       valueFrom:
         secretKeyRef:
-          name: domino-kaniko-svc-account
+          name:  domino-kaniko-secret
           key: DOMINO_RUN_ID
     - name: DOMINO_USER_API_KEY
       valueFrom:
         secretKeyRef:
-          name: domino-kaniko-svc-account
+          name: domino-kaniko-secret
           key: DOMINO_USER_API_KEY
+    - name: REGISTRY_URL
+      valueFrom:
+        secretKeyRef:
+          name:  domino-kaniko-secret
+          key: REGISTRY_URL
+    - name: REGISTRY_USER
+      valueFrom:
+        secretKeyRef:
+          name:  domino-kaniko-secret
+          key: REGISTRY_USER
+    - name: REGISTRY_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name:  domino-kaniko-secret
+          key: REGISTRY_TOKEN
     - name: MLFLOW_TRACKING_URI
       value: https://secureds53799.cs.domino.tech/
   restartPolicy: Never

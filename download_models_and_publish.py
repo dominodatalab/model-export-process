@@ -162,8 +162,14 @@ def build(model_name,model_version):
 
 
 if __name__ == "__main__":
-    model_name = sys.argv[1]
-    model_version = sys.argv[2]
+    model_name=""
+    model_version=""
+    if len(sys.argv) > 1:
+        model_name = sys.argv[1]
+        model_version = sys.argv[2]
+    else:
+        model_name = os.environ['MODEL_NAME']
+        model_version = os.environ['MODEL_VERSION']
     build(model_name,model_version)
 
 

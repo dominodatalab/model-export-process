@@ -152,7 +152,7 @@ Registry only contains the model artifacts and the metadata about the execution 
 - `conda.yaml`, `python_env.yaml` and `requirements.txt`
 
 
-## Alternative approach using Kaniko in the K8s cluster [TBD]
+## Alternative approach using Kaniko in the K8s cluster 
 
 
 We could run the build using Kaniko. First create the image which downloads the models from Model Registry
@@ -201,9 +201,28 @@ INFO[0001] Unpacking rootfs as cmd RUN groupadd --gid 1000 domino &&     useradd
 error building image: error building stage: failed to get filesystem from image: chown /bin: operation not permitted
 ```
 
-Next run the example kaniko pod in the path `./k8s/kaniko-pod.yaml`. You will find two environment varialbes in the yaml
-- `MODEL_NAME` - This is the name of the model registered to the Domino Model Registry
-- `MODEL_VERSION` - This is the version of the model registered to the Domino Model Registry
+Create a k8s secret
+```shell
+export MLFLOW_TRACKING_URI=https://securedsxxx.cs.domino.tech/
+export DOMINO_RUN_ID=<DOMINO_RUN_ID>
+export DOMINO_USER_API_KEY=<DOMINO_USER_API_KEY>
+export REGISTRY_URL=xxx-xx-registry.palantirfoundry.com
+export REGISTRY_USER=<REGISTRY_USER>
+export REGISTRY_TOKEN=<REGISTRY_TOKEN>
+export MODEL_NAME=<MODEL_NAME>
+export MODEL_VERSION=<MODEL_VERSION>
+
+kubectl create secret generic domino-kaniko-secret \
+  --from-literal=MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} \
+  --from-literal=DOMINO_RUN_ID=${DOMINO_RUN_ID} \
+  --from-literal=DOMINO_USER_API_KEY=${DOMINO_USER_API_KEY} \
+  --from-literal=REGISTRY_URL=${REGISTRY_URL} \
+  --from-literal=REGISTRY_USER=${REGISTRY_USER} \
+  --from-literal=REGISTRY_TOKEN=${REGISTRY_TOKEN} 
+
+```
+
+Next run the example kaniko pod in the path `./k8s/kaniko-pod.yaml`. 
 
 Note that if your `Dockerfile` based on the `./template/Dockerfile.template` uncomment this section the kanio build will fails
 ```shell

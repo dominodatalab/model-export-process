@@ -77,68 +77,64 @@ print(response.text)
 
 ```
 
-```
-export DOMINO_USER_API_KEY=<DOMINO_USER_API_KEY>
+## Build, Publish and Run Image to an external registry from a shell
+
+```shell
+
+export MLFLOW_TRACKING_URI=https://securedsxxx.cs.domino.tech/
 export DOMINO_RUN_ID=<DOMINO_RUN_ID>
-export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
-
-export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
-export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
-export MLFLOW_TRACKING_URI=<MLFLOW_TRACKING_URI>
-
-./download_models.py "/tmp/foundry_models"
+export DOMINO_USER_API_KEY=<DOMINO_USER_API_KEY>
+export REGISTRY_URL=xxx-xx-registry.palantirfoundry.com
+export REGISTRY_USER=<REGISTRY_USER>
+export REGISTRY_TOKEN=<REGISTRY_TOKEN>
+export MODEL_NAME=<MODEL_NAME>
+export MODEL_VERSION=<MODEL_VERSION>
+python download_models_and_publish.py $MODEL_NAME $MODEL_VERSION
 ```
-1. You need a valid run id for this project for the above API key. Either run a job and fetch it
-The runid need not be active. We could also use the Domino API to start a dummy job and create
-a run id dynamically.
-2. Example for the tracking uri is `export MLFLOW_TRACKING_URI=https://secureds53799.cs.domino.tech/`
 
+
+
+## Deploy the REST APP to publish models [This is a pre-requisite to the previous two steps]
+
+
+Follow these steps:
+1. Use a linux instance with a Docker client installed (I used an EC2 instance)
 ```shell
-cd /tmp/foundry_models
-ls /tmp/foundry_models/
-
-#You will see a folder for all registered models. I see only one because I have only one
-/tmp/foundry_models/
-- foundry_model
-- pltr_foundry_model
-
-cd /tmp/foundry_models/pltr_foundry_model
+sudo apt-get update -y
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-get update -y
+sudo apt-get install docker-ce -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ubuntu
 
 ```
-Now you will see a folder structure for all versions for which the tag `EXTERNAL_TARGET_PLTR_FOUNDRY` was added to the 
-model version
+2. Clone the current repo 
+3. Install certificates in the `$HOME/app` folder
 ```shell
-/tmp/foundry_models/pltr_foundry_model
-- v7
+mkdir $HOME/app
+openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+
+
 ```
-
-
-Go the most recent one
-
+3. Create a python virtual environment
 ```shell
-cd /tmp/foundry_models/pltr_foundry_model/v5
+sudo apt-get install python3 -y
+sudo apt-get install python3-pip -y
+sudo apt-get install python3-venv -y
+python3 -m venv myenv
+source myenv/bin/activate
 
-chmod 755 create_docker_image.sh
-./create_docker_image.sh
 ```
-
-This will publish the model to  `quay.io/domino/pltr_foundry_model:v5` (Or your registry) and also run it locally for you
-
-## Key Takeaways
-
-The process is fully automated as follows-
-
-1. The Domino user will register models using specific protocols (Tags and Artifact locations). We can wrap this in a 
-utility libraries. This process is outlined in the [notebook](./register_models.ipynb)
-2. The `download_models.py` will run on schedule and download the models matching the appropriate tags
-3. Each downloaded model will have a `create_model_image.sh` and `Dockerfile` along with other artifacts
-4. The process to run these for non-published models will also be run on schedule
-
-The end result is depending on the cadence (2,3,4) runs, the model images will be available in foundry.
-
-If the cadence is 15 mins, the image will be available in 15 mins after the Domino user publishes the model.
-
-The steps 2,3,4 are lightweight allowing us to have a more frequent executions
+4. Update the libraries to the environment
+```shell
+pip install -r flask.requirements.txt
+```
+5. Start the Flask App
+```shell
+nohup python3 download_models_and_publish.py >log.txt 2>log.err & 
+```
 
 ## Benefits of this approach
 
@@ -156,7 +152,7 @@ Registry only contains the model artifacts and the metadata about the execution 
 - `conda.yaml`, `python_env.yaml` and `requirements.txt`
 
 
-## Alternative approach using Kaniko in the K8s cluster
+## Alternative approach using Kaniko in the K8s cluster [TBD]
 
 
 We could run the build using Kaniko. First create the image which downloads the models from Model Registry

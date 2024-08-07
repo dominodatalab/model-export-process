@@ -129,12 +129,13 @@ def main(base_path,model_name,model_version):
     o,e = download_and_build(mv, base_path)
     return o,e
 
-
-set_mlflow_tracking_uri()
-register_domino_api_key_request_header_provider()
-register_domino_execution_request_header_provider()
+os.environ['MLFLOW_TRACKING_URI']='http://fake.com'
+os.environ['DOMINO_USER_API_KEY']='fake'
+os.environ['DOMINO_RUN_ID']='fake'
+first_time = True
 @app.route('/build', methods=['POST'])
 async def build():
+    global  first_time
     data = await request.get_json()
     model_name = data.get('model_name')
     model_version = data.get('model_version')
@@ -157,15 +158,16 @@ async def build():
     os.environ["REGISTRY_USER"] = registry_user
     os.environ["REGISTRY_TOKEN"] = registry_token
 
-
+    if  first_time:
+        set_mlflow_tracking_uri()
+        register_domino_api_key_request_header_provider()
+        register_domino_execution_request_header_provider()
+        first_time = False
     base_dir = "/tmp/output"
 
     print(os.environ['MLFLOW_TRACKING_URI'])
     final_dir = f"{base_dir}/{model_name}/v{model_version}"
     os.makedirs("/tmp/output",exist_ok=True)
-
-    #if os.path.exists(final_dir):
-    #    return jsonify(model_name=model_name, model_version=model_version, result="This version is already being published")
 
     output,error = main(base_dir,model_name,model_version)
     shutil.rmtree(final_dir)
@@ -173,4 +175,6 @@ async def build():
     return jsonify(model_name=model_name, model_version=model_version,stdout=output, stderror = error)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8443, certfile="/Users/sameer.wadkar/app/cert.pem", keyfile="/Users/sameer.wadkar/app/key.pem")
+    home = os.environ['HOME']
+
+    app.run(host='0.0.0.0', port=8443, certfile=f"{home}/app/cert.pem", keyfile=f"{home}/app/key.pem")

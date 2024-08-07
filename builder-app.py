@@ -83,7 +83,7 @@ def run_subprocess(command, working_dir):
 
 
 def download_and_build(mv, base_path):
-    global client
+    client = MlflowClient()
     run_id = mv.run_id
     model_name = mv.name
     model_version = mv.version
@@ -124,15 +124,17 @@ def download_and_build(mv, base_path):
 
 
 def main(base_path,model_name,model_version):
-    global client
+    client = MlflowClient()
     mv = client.get_model_version(model_name, model_version)
     o,e = download_and_build(mv, base_path)
     return o,e
 
-client = None
+
+set_mlflow_tracking_uri()
+register_domino_api_key_request_header_provider()
+register_domino_execution_request_header_provider()
 @app.route('/build', methods=['POST'])
 async def build():
-    global client
     data = await request.get_json()
     model_name = data.get('model_name')
     model_version = data.get('model_version')
@@ -155,11 +157,7 @@ async def build():
     os.environ["REGISTRY_USER"] = registry_user
     os.environ["REGISTRY_TOKEN"] = registry_token
 
-    if not client:
-        set_mlflow_tracking_uri()
-        register_domino_api_key_request_header_provider()
-        register_domino_execution_request_header_provider()
-        client = MlflowClient()
+
     base_dir = "/tmp/output"
 
     print(os.environ['MLFLOW_TRACKING_URI'])

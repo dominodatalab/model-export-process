@@ -11,6 +11,7 @@ class DominoExecutionRequestHeaderProvider(RequestHeaderProvider):
 
     def __init__(self):
         run_id = os.getenv("DOMINO_RUN_ID")
+        print(f"run-id{run_id}")
         self._domino_execution = jwt.encode({"execution_id": run_id}, "secret", algorithm="HS256")
 
     def in_context(self):

@@ -133,7 +133,7 @@ pip install -r flask.requirements.txt
 ```
 5. Start the Flask App
 ```shell
-nohup python3 download_models_and_publish.py >log.txt 2>log.err & 
+nohup python3 builder-app.py >log.txt 2>log.err & 
 ```
 
 ## Benefits of this approach

@@ -1,0 +1,2 @@
+import os
+print('${model_name}:v${model_version}')

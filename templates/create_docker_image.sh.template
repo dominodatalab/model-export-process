@@ -2,7 +2,7 @@ export REGISTRY_URL=$REGISTRY_URL
 export REGISTRY_USER=$REGISTRY_USER
 export REGISTRY_TOKEN=$REGISTRY_TOKEN
 
-docker build --platform=linux/amd64 -f ./Dockerfile -t $REGISTRY_URL/${model_name}:v${model_version} .
+docker build --platform=linux/amd64 -f ./Dockerfile -t ${model_name}:v${model_version} .
 docker login -u "$REGISTRY_USER" -p "$REGISTRY_TOKEN" "$REGISTRY_URL"
 docker push $REGISTRY_URL/${model_name}:v${model_version}
 #docker run $REGISTRY_URL/${model_name}:v${model_version}

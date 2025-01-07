@@ -116,6 +116,10 @@ def download_and_build(mv, base_path):
     client.download_artifacts(run_id, f"", model_download_path)
     os.listdir(model_download_path)
     # Resolve files
+    context=mv.tags
+    context['model_name']=model_name
+    context['model_version']=model_version
+    '''
     context = {
         'model_name': model_name,
         'model_version': model_version,
@@ -125,11 +129,11 @@ def download_and_build(mv, base_path):
         'entry_point': mv.tags['MODEL_ENTRY_POINT'],
         'command_line': mv.tags['MODEL_EXECUTE_PATH'],
     }
-
+    '''
     templates_folder = 'templates'
     templates = []
-    if 'MODEL_TEMPLATES_FOLDER' in context:
-        templates_folder = context['MODEL_TEMPLATES_FOLDER']
+    if 'model_templates_folder' in context:
+        templates_folder = context['model_templates_folder']
 
     templates_final_folder = f"{model_download_path}/{templates_folder}/"
     files = Path(templates_final_folder).rglob('*.template')
@@ -145,17 +149,6 @@ def download_and_build(mv, base_path):
             resolved_path = t.removesuffix(".template")
             output_file = f"{model_download_path}/{resolved_path}"
             create_file_from_template(content, context, output_file)
-    '''
-    with open(f"{model_download_path}/{templates_folder}/Dockerfile.template", 'r') as file:
-        content = file.read()
-        output_file = f"{model_download_path}/Dockerfile"
-        create_file_from_template(content, context, output_file)
-    with open(f"{model_download_path}/{templates_folder}/create_docker_image.sh.template", 'r') as file:
-        content = file.read()
-        output_file = f"{model_download_path}/create_docker_image.sh"
-        print(content)
-        create_file_from_template(content, context, output_file)
-    '''
 
     run_subprocess(["chmod","755","create_docker_image.sh"],working_dir=model_download_path)
     print(model_download_path)
@@ -188,6 +181,9 @@ async def build():
     global  first_time
     with lock:
         data = await request.get_json()
+        print(data)
+        #if not data:
+        #    return jsonify({"error": "No JSON payload found"}), 400
         model_name = data.get('model_name')
         model_version = data.get('model_version')
         headers = request.headers
@@ -200,7 +196,8 @@ async def build():
 
         if (not mlflow_tracking_uri or not domino_api_key or not domino_run_id
                 or not registry_token or not registry_url or not registry_user):
-            error = "Must include MLFLOW_TRACKING_URI, DOMINO_USER_API_KEY,DOMINO_RUN_ID and REGISTRY_TOKEN "
+            error = ("Must include MLFLOW_TRACKING_URI, DOMINO_USER_API_KEY,DOMINO_RUN_ID,"
+                     "REGISTRY_URL, REGISTRY_USER, REGISTRY_TOKEN ")
             return jsonify(model_name=model_name, model_version=model_version, stdout="", stderror=error)
         os.environ["MLFLOW_TRACKING_URI"] = mlflow_tracking_uri
         os.environ["DOMINO_RUN_ID"] = domino_run_id
@@ -223,11 +220,11 @@ async def build():
         os.makedirs("/tmp/output",exist_ok=True)
 
         output,error = main(base_dir,model_name,model_version)
-        shutil.rmtree(final_dir)
+        #shutil.rmtree(final_dir)
 
         ##Clean up here
         print("Cleanup")
-        perform_cleanup()
+        #perform_cleanup()
         return jsonify(model_name=model_name, model_version=model_version,stdout=output, stderror = error)
 
 @app.route('/healthz')
